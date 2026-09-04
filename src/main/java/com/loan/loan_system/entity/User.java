@@ -1,3 +1,5 @@
+package com.loan.loan_system.entity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,7 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
