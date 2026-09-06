@@ -8,18 +8,13 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Tambahan BCrypt
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
-import java.util.Date;
-
 @Service // 1. Wajib tambahkan ini agar dibaca Spring
 public class AuthService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
     
-    // 2. Gunakan Secret Key yang Tetap (Di real app ditaruh di application.properties)
-    private final Key jwtSecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
     public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder(); // Inisialisasi Encoder
@@ -31,15 +26,7 @@ public class AuthService {
 
         // Cek user ada DAN cocokkan password yang ter-hash
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            
-            // Generate & Return JWT Token
-            return Jwts.builder()
-                    .setSubject(user.getEmail())
-                    .claim("role", user.getRole())
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // Expired dalam 1 hari
-                    .signWith(jwtSecretKey)
-                    .compact();
+            return jwtUtil.generateToken(email, user.getRole());    
         }
         
         throw new RuntimeException("Email atau password salah!");
