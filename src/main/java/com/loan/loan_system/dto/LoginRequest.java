@@ -1,6 +1,7 @@
 package com.loan.loan_system.dto;
 
 public class LoginRequest {
+
   private String email;
   private String password;
 
