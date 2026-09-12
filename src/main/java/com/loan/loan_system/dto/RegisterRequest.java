@@ -1,37 +1,16 @@
 package com.loan.loan_system.dto;
 
+import org.hibernate.validator.constraints.Normalized;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Data;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor 
 public class RegisterRequest {
   private String email;
   private String password;
   private String role;
-
-  public RegisterRequest(String email, String password, String role) {
-    this.email = email;
-    this.password = password;
-    this.role = role;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public String getRole() {
-    return role;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public void setRole(String role) {
-    this.role = role;
-  }
 }
