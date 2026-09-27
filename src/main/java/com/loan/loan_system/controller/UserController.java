@@ -23,7 +23,7 @@ public class UserController {
       return ResponseEntity.badRequest().body(Map.of("error", "Email tidak boleh kosong"));
     }
     if (userService.getUserByEmail(email) != null) {
-      UserResponse userResponse = new UserResponse(userService.getUserByEmail(email).getEmail(), userService.getUserByEmail(email).getRole());
+      UserResponse userResponse = new UserResponse(userService.getUserByEmail(email).getName(), userService.getUserByEmail(email).getEmail(), userService.getUserByEmail(email).getRole());
       return ResponseEntity.ok(userResponse);
     } else {
       return ResponseEntity.status(404).body(Map.of("error", "User tidak ditemukan"));
