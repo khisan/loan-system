@@ -1,5 +1,7 @@
 package com.loan.loan_system.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.loan.loan_system.entity.Customer;
@@ -13,6 +15,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor 
 public class CustomerService {
   private final CustomerRepository customerRepository;
+
+public boolean isIdExists(UUID id) {
+    return customerRepository.existsById(id);
+  }
 
   public boolean isEmailExists(String email) {
     return customerRepository.existsByEmail(email);
@@ -39,6 +45,26 @@ public class CustomerService {
         .phoneNumber(savedCustomer.getPhoneNumber())
         .address(savedCustomer.getAddress())
         .createdAt(savedCustomer.getCreatedAt())
+        .build();
+  }
+
+  public CustomerResponse updateCustomer(CustomerRequest customerRequest, UUID id) {
+    Customer customer = customerRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + id));
+    customer.setFullName(customerRequest.getFullName());
+    customer.setEmail(customerRequest.getEmail());
+    customer.setPhoneNumber(customerRequest.getPhoneNumber());
+    customer.setAddress(customerRequest.getAddress());
+    Customer updatedCustomer = customerRepository.save(customer);
+    return CustomerResponse.builder()
+        .id(updatedCustomer.getId())
+        .fullName(updatedCustomer.getFullName())
+        .identityNumber(updatedCustomer.getIdentityNumber())
+        .email(updatedCustomer.getEmail())
+        .phoneNumber(updatedCustomer.getPhoneNumber())
+        .address(updatedCustomer.getAddress())
+        .createdAt(updatedCustomer.getCreatedAt())
+        .updatedAt(updatedCustomer.getUpdatedAt())
         .build();
   }
 }

@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository 
 public interface CustomerRepository extends JpaRepository<Customer, UUID> {
   
-  Optional<Customer> findByIdentityNumber(String identityNumber);
+  Optional<Customer> findById(UUID id);
 
   boolean existsByEmail(String email);
   boolean existsByIdentityNumber(String identityNumber);
