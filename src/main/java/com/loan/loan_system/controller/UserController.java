@@ -8,7 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.loan.loan_system.dto.response.UserResponse;
 import com.loan.loan_system.service.UserService;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
+
+import com.loan.loan_system.dto.request.UserRequest;
 import com.loan.loan_system.dto.response.ApiResponse;
 
 @RestController
@@ -17,16 +21,15 @@ public class UserController {
   @Autowired 
   private UserService userService;
   
-  @GetMapping ("/{email}")
+  @GetMapping ("/email/{email}")
   public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(@PathVariable("email") String email) {
-    if (email == null || email.isEmpty()) {
-      return ResponseEntity.badRequest().body(ApiResponse.failure("Email tidak boleh kosong"));
+    UserResponse userResponse = userService.getUserByEmail(email);
+    return ResponseEntity.ok(ApiResponse.success("User found", userResponse));
     }
-    if (userService.getUserByEmail(email) != null) {
-      UserResponse userResponse = new UserResponse(userService.getUserByEmail(email).getName(), userService.getUserByEmail(email).getEmail(), userService.getUserByEmail(email).getRole());
-      return ResponseEntity.ok(ApiResponse.success("User ditemukan", userResponse));
-    } else {
-      return ResponseEntity.status(404).body(ApiResponse.failure("User tidak ditemukan"));
-    }
+
+  @PostMapping 
+  public ResponseEntity<ApiResponse<UserResponse>> createUser(@RequestBody UserRequest userRequest) {
+    UserResponse userResponse = userService.createUser(userRequest);
+    return ResponseEntity.ok(ApiResponse.success("User created successfully", userResponse));
   }
 }

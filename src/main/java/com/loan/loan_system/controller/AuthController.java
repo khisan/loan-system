@@ -32,7 +32,7 @@ public class AuthController {
     if (token != null) {
       return ResponseEntity.ok(ApiResponse.success("Login berhasil", token));
     } else {
-      return ResponseEntity.status(400).body(ApiResponse.failure("Login gagal"));
+      return ResponseEntity.status(400).body(ApiResponse.failure("Login gagal: Periksa kembali email dan password anda"));
     }
   }
 }

@@ -2,22 +2,19 @@ package com.loan.loan_system.service;
 
 import com.loan.loan_system.entity.User;
 import com.loan.loan_system.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Tambahan BCrypt
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.loan.loan_system.security.JwtUtil;
 
-@Service // 1. Wajib tambahkan ini agar dibaca Spring
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor 
 public class AuthService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
-    public AuthService(UserRepository userRepository, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
-        this.passwordEncoder = new BCryptPasswordEncoder(); // Inisialisasi Encoder
-    }
 
     // 3. Return String Token (Bukan cuma boolean)
     public String login(String email, String password) {
@@ -28,7 +25,7 @@ public class AuthService {
             return jwtUtil.generateToken(email, user.getRole());
         }
 
-        throw new RuntimeException("Email atau password salah!");
+        return null;
     }
 
     public boolean register(String email, String password) {
