@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table (name = "customers")
@@ -17,6 +19,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor 
+@SQLRestriction ("deleted_at IS NULL") 
+@SQLDelete(sql = "UPDATE customers SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class Customer {
   
   @Id
@@ -45,4 +49,7 @@ public class Customer {
   @Column (nullable = false)
   @UpdateTimestamp
   private Instant updatedAt;
+
+  @Column (name = "deleted_at")
+  private Instant deletedAt;
 }

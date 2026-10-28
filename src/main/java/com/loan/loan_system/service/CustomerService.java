@@ -1,6 +1,8 @@
 package com.loan.loan_system.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -65,6 +67,36 @@ public boolean isIdExists(UUID id) {
         .address(updatedCustomer.getAddress())
         .createdAt(updatedCustomer.getCreatedAt())
         .updatedAt(updatedCustomer.getUpdatedAt())
+        .build();
+  }
+
+  public List<CustomerResponse> getCustomers() {
+    List<Customer> customers = customerRepository.findAll();
+    return customers.stream()
+        .map(customer -> CustomerResponse.builder()
+            .id(customer.getId())
+            .fullName(customer.getFullName())
+            .identityNumber(customer.getIdentityNumber())
+            .email(customer.getEmail())
+            .phoneNumber(customer.getPhoneNumber())
+            .address(customer.getAddress())
+            .createdAt(customer.getCreatedAt())
+            .build())
+        .collect(Collectors.toList());
+  }
+
+  public CustomerResponse getCustomerById(UUID id){
+    Customer customer = customerRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + id));
+     return CustomerResponse.builder()
+        .id(customer.getId())
+        .fullName(customer.getFullName())
+        .identityNumber(customer.getIdentityNumber())
+        .email(customer.getEmail())
+        .phoneNumber(customer.getPhoneNumber())
+        .address(customer.getAddress())
+        .createdAt(customer.getCreatedAt())
+        .updatedAt(customer.getUpdatedAt())
         .build();
   }
 }
