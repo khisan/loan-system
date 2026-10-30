@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "hoppscotch": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@hoppscotch/mcp-server"]
+    }
+  }
+}

@@ -9,13 +9,15 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+
+import com.loan.loan_system.enums.LoanStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor 
+@AllArgsConstructor
 public class LoanRequest {
   @NotNull (message = "Customer ID wajib diisi")
   private UUID customerId;
@@ -31,6 +33,8 @@ public class LoanRequest {
 
   @NotNull(message = "Tenor pinjaman wajib diisi")
   @Min (value = 1, message = "Tenor minimal 1 bulan")
-@Max (value = 120, message = "Tenor maksimal 120 bulan (10 tahun)")
-  private String tenorMonths;
+  @Max (value = 120, message = "Tenor maksimal 120 bulan (10 tahun)")
+  private Integer tenorMonths;
+
+  private LoanStatus status;
 }

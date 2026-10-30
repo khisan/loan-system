@@ -42,12 +42,12 @@ public class Loan {
   private Instant createdAt;
 
   @Column(name = "updated_at",nullable = false)
-  private Instant updateAt;
+  private Instant updatedAt;
 
   @PrePersist 
   protected void onCreate() {
     this.createdAt = Instant.now();
-    this.updateAt = Instant.now();
+    this.updatedAt = Instant.now();
     if (this.status == null) {
       this.status = LoanStatus.PENDING;
     }
@@ -55,6 +55,6 @@ public class Loan {
 
   @PreUpdate 
   protected void onUpdate() {
-    this.updateAt = Instant.now();
+    this.updatedAt = Instant.now();
   }
 }
