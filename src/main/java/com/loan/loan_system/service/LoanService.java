@@ -45,34 +45,68 @@ public class LoanService {
 
   @Transactional
   public LoanResponse createLoan(LoanRequest request) {
+    rejectStatusChange(request);
     Customer customer = findCustomerById(request.getCustomerId());
     Loan loan = Loan.builder()
         .customer(customer)
         .amount(request.getAmount())
         .interestRate(request.getInterestRate())
         .tenorMonths(request.getTenorMonths())
-        .status(request.getStatus() == null ? LoanStatus.PENDING : request.getStatus())
+        .status(LoanStatus.PENDING)
         .build();
     return toResponse(loanRepository.save(loan));
   }
 
   @Transactional
   public LoanResponse updateLoan(UUID id, LoanRequest request) {
+    rejectStatusChange(request);
     Loan loan = findLoanById(id);
     loan.setCustomer(findCustomerById(request.getCustomerId()));
     loan.setAmount(request.getAmount());
     loan.setInterestRate(request.getInterestRate());
     loan.setTenorMonths(request.getTenorMonths());
-    if (request.getStatus() != null) {
-      loan.setStatus(request.getStatus());
-    }
     return toResponse(loanRepository.save(loan));
+  }
+
+  @Transactional
+  public LoanResponse approveLoan(UUID id) {
+    return changeStatus(id, LoanStatus.PENDING, LoanStatus.APPROVED);
+  }
+
+  @Transactional
+  public LoanResponse rejectLoan(UUID id) {
+    return changeStatus(id, LoanStatus.PENDING, LoanStatus.REJECTED);
+  }
+
+  @Transactional
+  public LoanResponse disburseLoan(UUID id) {
+    return changeStatus(id, LoanStatus.APPROVED, LoanStatus.DISBURSED);
   }
 
   @Transactional
   public void deleteLoan(UUID id) {
     Loan loan = findLoanById(id);
     loanRepository.delete(loan);
+  }
+
+  private LoanResponse changeStatus(UUID id, LoanStatus expectedStatus, LoanStatus newStatus) {
+    Loan loan = findLoanById(id);
+    if (loan.getStatus() != expectedStatus) {
+      throw new ResponseStatusException(
+          HttpStatus.CONFLICT,
+          "Loan status must be " + expectedStatus + " to change it to " + newStatus);
+    }
+
+    loan.setStatus(newStatus);
+    return toResponse(loanRepository.save(loan));
+  }
+
+  private void rejectStatusChange(LoanRequest request) {
+    if (request.getStatus() != null) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Loan status can only be changed through the role-specific status actions");
+    }
   }
 
   private Loan findLoanById(UUID id) {

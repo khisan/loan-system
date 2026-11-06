@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +35,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       
       final String token = header.substring(7);
       final String email = jwtUtil.extractEmail(token);
+      final String role = jwtUtil.extractRole(token);
 
       if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
         if (jwtUtil.validateToken(token, email)) {
+          List<SimpleGrantedAuthority> authorities = role == null || role.isBlank()
+              ? List.of()
+              : List.of(new SimpleGrantedAuthority(normalizeRole(role)));
           UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-              email, null, List.of(new SimpleGrantedAuthority("user")));
+              email, null, authorities);
           authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
           SecurityContextHolder.getContext().setAuthentication(authToken);
         }
@@ -48,6 +53,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       logger.error("Gagal set user authentication: {}", e);
     }
     filterChain.doFilter(request, response);
+  }
+
+  private String normalizeRole(String role) {
+    String normalizedRole = role.trim().toLowerCase(Locale.ROOT);
+    return normalizedRole.startsWith("role_") ? normalizedRole.substring(5) : normalizedRole;
   }
 
 }
