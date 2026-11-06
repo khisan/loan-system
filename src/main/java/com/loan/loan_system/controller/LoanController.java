@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -55,6 +56,21 @@ public class LoanController {
       @PathVariable UUID id,
       @Valid @RequestBody LoanRequest request) {
     return ResponseEntity.ok(ApiResponse.success("Loan updated successfully", loanService.updateLoan(id, request)));
+  }
+
+  @PatchMapping("/{id}/approve")
+  public ResponseEntity<ApiResponse<LoanResponse>> approveLoan(@PathVariable UUID id) {
+    return ResponseEntity.ok(ApiResponse.success("Loan approved successfully", loanService.approveLoan(id)));
+  }
+
+  @PatchMapping("/{id}/reject")
+  public ResponseEntity<ApiResponse<LoanResponse>> rejectLoan(@PathVariable UUID id) {
+    return ResponseEntity.ok(ApiResponse.success("Loan rejected successfully", loanService.rejectLoan(id)));
+  }
+
+  @PatchMapping("/{id}/disburse")
+  public ResponseEntity<ApiResponse<LoanResponse>> disburseLoan(@PathVariable UUID id) {
+    return ResponseEntity.ok(ApiResponse.success("Loan disbursed successfully", loanService.disburseLoan(id)));
   }
 
   @DeleteMapping("/{id}")
