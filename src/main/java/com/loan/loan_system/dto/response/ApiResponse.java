@@ -29,6 +29,14 @@ public class ApiResponse<T> {
   // Helper method untuk membuat response gagal
   public static <T> ApiResponse<T> failure(String message) {
     return ApiResponse.<T>builder()
+        .success(false)
+        .message(message)
+        .data(null)
+        .build();
+  }
+  
+  public static <T> ApiResponse<T> failure(String message, T data) {
+    return ApiResponse.<T>builder()
     .success(false)
     .message(message)
     .data(null)

@@ -35,7 +35,7 @@ public class SecurityConfig {
             .requestMatchers("/api/auth/**", "/api/v1/auth/**", "/auth/**").permitAll()
             .requestMatchers("/error").permitAll()
             .requestMatchers(HttpMethod.PATCH, "/api/loans/*/approve", "/api/loans/*/reject").hasAuthority("admin")
-            .requestMatchers(HttpMethod.PATCH, "/api/loans/*/disburse").hasAuthority("finance")
+            .requestMatchers(HttpMethod.PATCH, "/api/loans/*/disburse").hasAnyAuthority("admin","finance")
             .anyRequest().authenticated())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
