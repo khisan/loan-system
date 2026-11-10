@@ -3,6 +3,8 @@ package com.loan.loan_system.entity;
 import com.loan.loan_system.enums.CollateralType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -10,6 +12,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "collaterals")
+@SQLDelete(sql = "UPDATE collaterals SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -45,6 +49,9 @@ public class Collateral {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @PrePersist
     protected void onCreate() {

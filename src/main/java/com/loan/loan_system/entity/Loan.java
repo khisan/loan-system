@@ -8,9 +8,13 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.loan.loan_system.enums.LoanStatus;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "loans")
+@SQLDelete(sql = "UPDATE loans SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,6 +47,9 @@ public class Loan {
 
   @Column(name = "updated_at",nullable = false)
   private Instant updatedAt;
+
+  @Column(name = "deleted_at")
+  private Instant deletedAt;
 
   @PrePersist 
   protected void onCreate() {
