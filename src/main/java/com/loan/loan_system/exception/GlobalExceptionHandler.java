@@ -3,6 +3,7 @@ package com.loan.loan_system.exception;
 import com.loan.loan_system.dto.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,6 +17,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ex.getStatusCode())
                 .body(ApiResponse.failure(ex.getReason()));
+    }
+
+    // Tangkap AccessDeniedException (403), termasuk turunannya seperti AuthorizationDeniedException
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.failure("Akses ditolak: Anda tidak memiliki izin untuk resource ini"));
     }
 
     // Tangkap IllegalStateException (misal: validasi bisnis di Service)
