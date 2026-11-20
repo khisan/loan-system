@@ -31,13 +31,13 @@ public class CustomerController {
     return ResponseEntity.ok(ApiResponse.success("Customers retrieved successfully", customerResponses));
   }
   
-  @GetMapping ("/customer/{id}")
+  @GetMapping ("/customers/{id}")
   public ResponseEntity<ApiResponse<CustomerResponse>> getCustomerById(@PathVariable UUID id) {
     CustomerResponse customerResponse = customerService.getCustomerById(id);
     return ResponseEntity.ok(ApiResponse.success("Customer retrieved successfully", customerResponse));
   }
 
-  @PostMapping ("/customer")
+  @PostMapping ("/customers")
   public ResponseEntity<ApiResponse<CustomerResponse>> createCustomer(@RequestBody CustomerRequest customerRequest) {
     boolean emailExists = customerService.isEmailExists(customerRequest.getEmail());
     boolean identityNumberExists = customerService.isIdentityNumberExists(customerRequest.getIdentityNumber());
@@ -51,7 +51,7 @@ public class CustomerController {
     return ResponseEntity.ok(ApiResponse.success("Customer created successfully", customerResponse));
   }
   
-  @PutMapping("/customer/{id}")
+  @PutMapping("/customers/{id}")
   public ResponseEntity<ApiResponse<CustomerResponse>> updateCustomer(@PathVariable UUID id,
       @RequestBody CustomerRequest customerRequest) {
     CustomerResponse customerResponse = customerService.updateCustomer(customerRequest, id);

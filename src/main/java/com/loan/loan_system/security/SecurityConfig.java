@@ -44,7 +44,7 @@ public class SecurityConfig {
             .requestMatchers("/api/auth/**", "/api/v1/auth/**", "/auth/**").permitAll()
             .requestMatchers("/error").permitAll()
             .requestMatchers(HttpMethod.PATCH, "/api/loans/*/approve", "/api/loans/*/reject").hasAuthority("admin")
-            .requestMatchers(HttpMethod.PATCH, "/api/loans/*/disburse").hasAnyAuthority("admin","finance")
+            .requestMatchers(HttpMethod.POST, "/api/loans/*/disburse").hasAnyAuthority("admin","finance")
             .anyRequest().authenticated())
         .exceptionHandling(exceptions -> exceptions
             .authenticationEntryPoint((request, response, authException) ->
