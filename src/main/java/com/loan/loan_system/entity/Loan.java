@@ -25,6 +25,10 @@ public class Loan {
   @GeneratedValue (strategy = GenerationType.UUID)
   private UUID id;
 
+  /** Business key for humans, e.g. LN-2026-0001. Generated once, never updated. */
+  @Column (name = "loan_number", length = 32, updatable = false)
+  private String loanNumber;
+
   @ManyToOne (fetch = FetchType.LAZY)
   @JoinColumn (name = "customer_id", nullable = false)
   private Customer customer;

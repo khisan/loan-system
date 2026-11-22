@@ -118,6 +118,8 @@ public class InvoiceService {
     return InvoiceResponse.builder()
         .id(invoice.getId())
         .loanId(invoice.getLoan().getId())
+        .loanNumber(invoice.getLoan().getLoanNumber())
+        .customerName(invoice.getLoan().getCustomer().getFullName())
         .invoiceNumber(invoice.getInvoiceNumber())
         .installmentNumber(invoice.getInstallmentNumber())
         .principalAmount(invoice.getPrincipalAmount())

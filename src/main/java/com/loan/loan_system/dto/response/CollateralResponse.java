@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 public class CollateralResponse {
   private UUID id;
   private UUID loanId;
+  private String loanNumber;
+  private String customerName;
   private CollateralType type;
   private String documentNumber;
   private BigDecimal marketValue;

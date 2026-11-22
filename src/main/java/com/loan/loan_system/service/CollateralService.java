@@ -89,6 +89,8 @@ public class CollateralService {
     return CollateralResponse.builder()
         .id(collateral.getId())
         .loanId(collateral.getLoan().getId())
+        .loanNumber(collateral.getLoan().getLoanNumber())
+        .customerName(collateral.getLoan().getCustomer().getFullName())
         .type(collateral.getType())
         .documentNumber(collateral.getDocumentNumber())
         .marketValue(collateral.getMarketValue())

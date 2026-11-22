@@ -1,5 +1,6 @@
 package com.loan.loan_system.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class LoanService {
   private final LoanRepository loanRepository;
   private final CustomerRepository customerRepository;
+  private final LoanNumberService loanNumberService;
 
   @Transactional(readOnly = true)
   public List<LoanResponse> getLoans() {
@@ -49,6 +51,7 @@ public class LoanService {
     Customer customer = findCustomerById(request.getCustomerId());
     Loan loan = Loan.builder()
         .customer(customer)
+        .loanNumber(loanNumberService.next(Instant.now()))
         .amount(request.getAmount())
         .interestRate(request.getInterestRate())
         .tenorMonths(request.getTenorMonths())
@@ -122,7 +125,9 @@ public class LoanService {
   private LoanResponse toResponse(Loan loan) {
     return LoanResponse.builder()
         .id(loan.getId())
+        .loanNumber(loan.getLoanNumber())
         .customerId(loan.getCustomer().getId())
+        .customerName(loan.getCustomer().getFullName())
         .amount(loan.getAmount())
         .interestRate(loan.getInterestRate())
         .tenorMonths(loan.getTenorMonths())

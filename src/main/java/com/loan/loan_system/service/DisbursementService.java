@@ -99,6 +99,8 @@ public class DisbursementService {
     return DisbursementResponse.builder()
         .id(disbursement.getId())
         .loanId(disbursement.getLoan().getId())
+        .loanNumber(disbursement.getLoan().getLoanNumber())
+        .customerName(disbursement.getLoan().getCustomer().getFullName())
         .disbursementNumber(disbursement.getDisbursementNumber())
         .amount(disbursement.getAmount())
         .bankName(disbursement.getBankName())

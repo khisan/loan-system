@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 public class DisbursementResponse {
   private UUID id;
   private UUID loanId;
+  private String loanNumber;
+  private String customerName;
   private String disbursementNumber;
   private BigDecimal amount;
   private String bankName;

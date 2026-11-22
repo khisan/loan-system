@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 public class InvoiceResponse {
   private UUID id;
   private UUID loanId;
+  private String loanNumber;
+  private String customerName;
   private String invoiceNumber;
   private Integer installmentNumber;
   private BigDecimal principalAmount;

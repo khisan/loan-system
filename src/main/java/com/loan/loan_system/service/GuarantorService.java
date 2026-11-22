@@ -90,6 +90,8 @@ public class GuarantorService {
     return GuarantorResponse.builder()
         .id(guarantor.getId())
         .loanId(guarantor.getLoan().getId())
+        .loanNumber(guarantor.getLoan().getLoanNumber())
+        .customerName(guarantor.getLoan().getCustomer().getFullName())
         .fullName(guarantor.getFullName())
         .identityNumber(guarantor.getIdentityNumber())
         .email(guarantor.getEmail())

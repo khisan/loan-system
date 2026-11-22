@@ -17,7 +17,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoanResponse {
   private UUID id;
+  private String loanNumber;
   private UUID customerId;
+  private String customerName;
   private BigDecimal amount;
   private Double interestRate;
   private Integer tenorMonths;
