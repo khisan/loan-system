@@ -6,11 +6,9 @@ import java.util.UUID;
 
 import com.loan.loan_system.enums.InvoiceStatus;
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,10 +19,6 @@ import lombok.NoArgsConstructor;
 public class InvoiceRequest {
   @NotNull(message = "Loan ID wajib diisi")
   private UUID loanId;
-
-  @NotBlank(message = "Nomor invoice wajib diisi")
-  @Size(max = 255, message = "Nomor invoice maksimal 255 karakter")
-  private String invoiceNumber;
 
   @NotNull(message = "Nomor angsuran wajib diisi")
   @Positive(message = "Nomor angsuran harus lebih besar dari 0")

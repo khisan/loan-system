@@ -1,6 +1,7 @@
 package com.loan.loan_system.service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.loan.loan_system.dto.request.InvoiceRequest;
 import com.loan.loan_system.dto.response.InvoiceResponse;
+import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.Invoice;
 import com.loan.loan_system.entity.Loan;
 import com.loan.loan_system.repository.InvoiceRepository;
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class InvoiceService {
   private final InvoiceRepository invoiceRepository;
   private final LoanRepository loanRepository;
+  private final BusinessNumberService businessNumberService;
 
   @Transactional(readOnly = true)
   public List<InvoiceResponse> getInvoices() {
@@ -44,10 +47,9 @@ public class InvoiceService {
 
   @Transactional
   public InvoiceResponse createInvoice(InvoiceRequest request) {
-    ensureInvoiceNumberAvailable(request.getInvoiceNumber(), null);
     Invoice invoice = Invoice.builder()
         .loan(findLoanById(request.getLoanId()))
-        .invoiceNumber(request.getInvoiceNumber())
+        .invoiceNumber(businessNumberService.next(BusinessNumberType.INVOICE, Instant.now()))
         .installmentNumber(request.getInstallmentNumber())
         .principalAmount(request.getPrincipalAmount())
         .interestAmount(request.getInterestAmount())
@@ -64,9 +66,7 @@ public class InvoiceService {
   @Transactional
   public InvoiceResponse updateInvoice(UUID id, InvoiceRequest request) {
     Invoice invoice = findInvoiceById(id);
-    ensureInvoiceNumberAvailable(request.getInvoiceNumber(), id);
     invoice.setLoan(findLoanById(request.getLoanId()));
-    invoice.setInvoiceNumber(request.getInvoiceNumber());
     invoice.setInstallmentNumber(request.getInstallmentNumber());
     invoice.setPrincipalAmount(request.getPrincipalAmount());
     invoice.setInterestAmount(request.getInterestAmount());
@@ -96,13 +96,6 @@ public class InvoiceService {
     return loanRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND, "Loan not found with ID: " + id));
-  }
-
-  private void ensureInvoiceNumberAvailable(String invoiceNumber, UUID currentId) {
-    if (invoiceRepository.existsByInvoiceNumber(invoiceNumber, currentId)) {
-      throw new ResponseStatusException(
-          HttpStatus.CONFLICT, "Invoice number already exists: " + invoiceNumber);
-    }
   }
 
   private BigDecimal normalizePenalty(BigDecimal penaltyAmount) {

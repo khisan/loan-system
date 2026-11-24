@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GuarantorResponse {
   private UUID id;
+  private String guarantorNumber;
   private UUID loanId;
   private String loanNumber;
   private String customerName;

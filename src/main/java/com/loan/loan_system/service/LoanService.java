@@ -13,6 +13,7 @@ import com.loan.loan_system.dto.request.LoanRequest;
 import com.loan.loan_system.dto.response.LoanResponse;
 import com.loan.loan_system.entity.Customer;
 import com.loan.loan_system.entity.Loan;
+import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.enums.LoanStatus;
 import com.loan.loan_system.repository.CustomerRepository;
 import com.loan.loan_system.repository.LoanRepository;
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class LoanService {
   private final LoanRepository loanRepository;
   private final CustomerRepository customerRepository;
-  private final LoanNumberService loanNumberService;
+  private final BusinessNumberService businessNumberService;
 
   @Transactional(readOnly = true)
   public List<LoanResponse> getLoans() {
@@ -51,7 +52,7 @@ public class LoanService {
     Customer customer = findCustomerById(request.getCustomerId());
     Loan loan = Loan.builder()
         .customer(customer)
-        .loanNumber(loanNumberService.next(Instant.now()))
+        .loanNumber(businessNumberService.next(BusinessNumberType.LOAN, Instant.now()))
         .amount(request.getAmount())
         .interestRate(request.getInterestRate())
         .tenorMonths(request.getTenorMonths())

@@ -1,11 +1,14 @@
 package com.loan.loan_system.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.Customer;
 import com.loan.loan_system.repository.CustomerRepository;
 import com.loan.loan_system.dto.response.CustomerResponse;
@@ -17,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor 
 public class CustomerService {
   private final CustomerRepository customerRepository;
+  private final BusinessNumberService businessNumberService;
 
 public boolean isIdExists(UUID id) {
     return customerRepository.existsById(id);
@@ -30,8 +34,10 @@ public boolean isIdExists(UUID id) {
     return customerRepository.existsByIdentityNumber(identityNumber);
   }
 
+  @Transactional
   public CustomerResponse createCustomer(CustomerRequest customerRequest) {
     Customer customer = Customer.builder()
+        .customerNumber(businessNumberService.next(BusinessNumberType.CUSTOMER, Instant.now()))
         .fullName(customerRequest.getFullName())
         .identityNumber(customerRequest.getIdentityNumber())
         .email(customerRequest.getEmail())
@@ -41,6 +47,7 @@ public boolean isIdExists(UUID id) {
     Customer savedCustomer = customerRepository.save(customer);
     return CustomerResponse.builder()
         .id(savedCustomer.getId())
+        .customerNumber(savedCustomer.getCustomerNumber())
         .fullName(savedCustomer.getFullName())
         .identityNumber(savedCustomer.getIdentityNumber())
         .email(savedCustomer.getEmail())
@@ -60,6 +67,7 @@ public boolean isIdExists(UUID id) {
     Customer updatedCustomer = customerRepository.save(customer);
     return CustomerResponse.builder()
         .id(updatedCustomer.getId())
+        .customerNumber(updatedCustomer.getCustomerNumber())
         .fullName(updatedCustomer.getFullName())
         .identityNumber(updatedCustomer.getIdentityNumber())
         .email(updatedCustomer.getEmail())
@@ -75,6 +83,7 @@ public boolean isIdExists(UUID id) {
     return customers.stream()
         .map(customer -> CustomerResponse.builder()
             .id(customer.getId())
+            .customerNumber(customer.getCustomerNumber())
             .fullName(customer.getFullName())
             .identityNumber(customer.getIdentityNumber())
             .email(customer.getEmail())
@@ -90,6 +99,7 @@ public boolean isIdExists(UUID id) {
         .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + id));
      return CustomerResponse.builder()
         .id(customer.getId())
+        .customerNumber(customer.getCustomerNumber())
         .fullName(customer.getFullName())
         .identityNumber(customer.getIdentityNumber())
         .email(customer.getEmail())

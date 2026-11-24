@@ -1,5 +1,6 @@
 package com.loan.loan_system.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.loan.loan_system.dto.request.GuarantorRequest;
 import com.loan.loan_system.dto.response.GuarantorResponse;
+import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.Guarantor;
 import com.loan.loan_system.entity.Loan;
 import com.loan.loan_system.repository.GuarantorRepository;
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class GuarantorService {
   private final GuarantorRepository guarantorRepository;
   private final LoanRepository loanRepository;
+  private final BusinessNumberService businessNumberService;
 
   @Transactional(readOnly = true)
   public List<GuarantorResponse> getGuarantors() {
@@ -45,6 +48,7 @@ public class GuarantorService {
   @Transactional
   public GuarantorResponse createGuarantor(GuarantorRequest request) {
     Guarantor guarantor = Guarantor.builder()
+        .guarantorNumber(businessNumberService.next(BusinessNumberType.GUARANTOR, Instant.now()))
         .loan(findLoanById(request.getLoanId()))
         .fullName(request.getFullName())
         .identityNumber(request.getIdentityNumber())
@@ -89,6 +93,7 @@ public class GuarantorService {
   private GuarantorResponse toResponse(Guarantor guarantor) {
     return GuarantorResponse.builder()
         .id(guarantor.getId())
+        .guarantorNumber(guarantor.getGuarantorNumber())
         .loanId(guarantor.getLoan().getId())
         .loanNumber(guarantor.getLoan().getLoanNumber())
         .customerName(guarantor.getLoan().getCustomer().getFullName())

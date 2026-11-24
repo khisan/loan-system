@@ -1,5 +1,6 @@
 package com.loan.loan_system.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.loan.loan_system.dto.request.CollateralRequest;
 import com.loan.loan_system.dto.response.CollateralResponse;
+import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.Collateral;
 import com.loan.loan_system.entity.Loan;
 import com.loan.loan_system.repository.CollateralRepository;
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class CollateralService {
   private final CollateralRepository collateralRepository;
   private final LoanRepository loanRepository;
+  private final BusinessNumberService businessNumberService;
 
   @Transactional(readOnly = true)
   public List<CollateralResponse> getCollaterals() {
@@ -46,6 +49,7 @@ public class CollateralService {
   public CollateralResponse createCollateral(CollateralRequest request) {
     Loan loan = findLoanById(request.getLoanId());
     Collateral collateral = Collateral.builder()
+        .collateralNumber(businessNumberService.next(BusinessNumberType.COLLATERAL, Instant.now()))
         .loan(loan)
         .type(request.getType())
         .documentNumber(request.getDocumentNumber())
@@ -88,6 +92,7 @@ public class CollateralService {
   private CollateralResponse toResponse(Collateral collateral) {
     return CollateralResponse.builder()
         .id(collateral.getId())
+        .collateralNumber(collateral.getCollateralNumber())
         .loanId(collateral.getLoan().getId())
         .loanNumber(collateral.getLoan().getLoanNumber())
         .customerName(collateral.getLoan().getCustomer().getFullName())

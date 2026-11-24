@@ -28,8 +28,9 @@ public class Invoice {
     @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan;
 
-    @Column(name = "invoice_number", nullable = false, unique = true)
-    private String invoiceNumber; // Ref No: INV-202610-001
+    /** Business key for humans, e.g. INV-2026-0001. Generated once, never updated. */
+    @Column(name = "invoice_number", nullable = false, unique = true, length = 32, updatable = false)
+    private String invoiceNumber;
 
     @Column(name = "installment_number", nullable = false)
     private Integer installmentNumber; // Angsuran ke-N (misal: 1, 2, 3...)

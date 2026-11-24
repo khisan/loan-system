@@ -27,6 +27,10 @@ public class Customer {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  /** Business key for humans, e.g. CUS-2026-0001. Generated once, never updated. */
+  @Column (name = "customer_number", length = 32, updatable = false)
+  private String customerNumber;
+
   @Column (nullable = false)
   private String fullName;
 

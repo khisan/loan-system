@@ -28,8 +28,9 @@ public class Disbursement {
     @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan;
 
-    @Column(name = "disbursement_number", nullable = false, unique = true)
-    private String disbursementNumber; // Ref No: DISB-202610-001
+    /** Business key for humans, e.g. DISB-2026-0001. Generated once, never updated. */
+    @Column(name = "disbursement_number", nullable = false, unique = true, length = 32, updatable = false)
+    private String disbursementNumber;
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount; // Nominal cair (bisa tranche/tahapan)

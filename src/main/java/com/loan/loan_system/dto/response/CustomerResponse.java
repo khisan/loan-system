@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor 
 public class CustomerResponse {
   private UUID id;
+  private String customerNumber;
   private String fullName;
   private String identityNumber;
   private String email;

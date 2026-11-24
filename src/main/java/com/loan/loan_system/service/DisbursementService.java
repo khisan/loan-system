@@ -1,5 +1,6 @@
 package com.loan.loan_system.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.loan.loan_system.dto.request.DisbursementRequest;
 import com.loan.loan_system.dto.response.DisbursementResponse;
+import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.Disbursement;
 import com.loan.loan_system.entity.Loan;
 import com.loan.loan_system.repository.DisbursementRepository;
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class DisbursementService {
   private final DisbursementRepository disbursementRepository;
   private final LoanRepository loanRepository;
+  private final BusinessNumberService businessNumberService;
 
   @Transactional(readOnly = true)
   public List<DisbursementResponse> getDisbursements() {
@@ -43,10 +46,9 @@ public class DisbursementService {
 
   @Transactional
   public DisbursementResponse createDisbursement(DisbursementRequest request) {
-    ensureDisbursementNumberAvailable(request.getDisbursementNumber(), null);
     Disbursement disbursement = Disbursement.builder()
         .loan(findLoanById(request.getLoanId()))
-        .disbursementNumber(request.getDisbursementNumber())
+        .disbursementNumber(businessNumberService.next(BusinessNumberType.DISBURSEMENT, Instant.now()))
         .amount(request.getAmount())
         .bankName(request.getBankName())
         .bankAccountNumber(request.getBankAccountNumber())
@@ -58,9 +60,7 @@ public class DisbursementService {
   @Transactional
   public DisbursementResponse updateDisbursement(UUID id, DisbursementRequest request) {
     Disbursement disbursement = findDisbursementById(id);
-    ensureDisbursementNumberAvailable(request.getDisbursementNumber(), id);
     disbursement.setLoan(findLoanById(request.getLoanId()));
-    disbursement.setDisbursementNumber(request.getDisbursementNumber());
     disbursement.setAmount(request.getAmount());
     disbursement.setBankName(request.getBankName());
     disbursement.setBankAccountNumber(request.getBankAccountNumber());
@@ -83,16 +83,6 @@ public class DisbursementService {
     return loanRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.NOT_FOUND, "Loan not found with ID: " + id));
-  }
-
-  private void ensureDisbursementNumberAvailable(String disbursementNumber, UUID currentId) {
-    boolean exists = currentId == null
-        ? disbursementRepository.existsByDisbursementNumber(disbursementNumber)
-        : disbursementRepository.existsByDisbursementNumberAndIdNot(disbursementNumber, currentId);
-    if (exists) {
-      throw new ResponseStatusException(
-          HttpStatus.CONFLICT, "Disbursement number already exists: " + disbursementNumber);
-    }
   }
 
   private DisbursementResponse toResponse(Disbursement disbursement) {

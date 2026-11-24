@@ -24,6 +24,10 @@ public class Collateral {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /** Business key for humans, e.g. COL-2026-0001. Generated once, never updated. */
+    @Column(name = "collateral_number", length = 32, updatable = false)
+    private String collateralNumber;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan;
