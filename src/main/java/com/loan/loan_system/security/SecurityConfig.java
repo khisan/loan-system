@@ -43,8 +43,16 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/api/auth/**", "/api/v1/auth/**", "/auth/**").permitAll()
             .requestMatchers("/error").permitAll()
-            .requestMatchers(HttpMethod.PATCH, "/api/loans/*/approve", "/api/loans/*/reject").hasAuthority("admin")
-            .requestMatchers(HttpMethod.POST, "/api/loans/*/disburse").hasAnyAuthority("admin","finance")
+            // Decisions are finance/admin only; submitting a proposal is any authenticated user.
+            .requestMatchers(HttpMethod.PATCH, "/api/approvals/*/approve", "/api/approvals/*/reject")
+                .hasAnyAuthority("admin", "finance")
+            .requestMatchers("/api/approvals/**", "/api/audit-logs/**").authenticated()
+            // Loan status endpoints now only stage a request; the decision happens above.
+            .requestMatchers(
+                HttpMethod.PATCH,
+                "/api/loans/*/approve",
+                "/api/loans/*/reject",
+                "/api/loans/*/disburse").authenticated()
             .anyRequest().authenticated())
         .exceptionHandling(exceptions -> exceptions
             .authenticationEntryPoint((request, response, authException) ->

@@ -7,6 +7,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.List;
+import java.util.UUID;
+
+import com.loan.loan_system.entity.User;
+import com.loan.loan_system.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +24,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Autowired
   private JwtUtil jwtUtil;
+
+  @Autowired
+  private UserRepository userRepository;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -42,8 +49,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           List<SimpleGrantedAuthority> authorities = role == null || role.isBlank()
               ? List.of()
               : List.of(new SimpleGrantedAuthority(normalizeRole(role)));
+
+          // Tokens issued before the userId claim existed are resolved by email.
+          UUID userId = jwtUtil.extractUserId(token);
+          if (userId == null) {
+            userId = userRepository.findByEmail(email).map(User::getId).orElse(null);
+          }
+          Actor actor = new Actor(userId, email, normalizeRole(role));
           UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-              email, null, authorities);
+              actor, null, authorities);
           authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
           SecurityContextHolder.getContext().setAuthentication(authToken);
         }

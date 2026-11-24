@@ -1,6 +1,5 @@
 package com.loan.loan_system.service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,11 +10,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.loan.loan_system.dto.request.DisbursementRequest;
 import com.loan.loan_system.dto.response.DisbursementResponse;
-import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.Disbursement;
 import com.loan.loan_system.entity.Loan;
 import com.loan.loan_system.repository.DisbursementRepository;
 import com.loan.loan_system.repository.LoanRepository;
+import com.loan.loan_system.security.Actor;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,20 +23,15 @@ import lombok.RequiredArgsConstructor;
 public class DisbursementService {
   private final DisbursementRepository disbursementRepository;
   private final LoanRepository loanRepository;
-  private final BusinessNumberService businessNumberService;
 
   @Transactional(readOnly = true)
   public List<DisbursementResponse> getDisbursements() {
-    return disbursementRepository.findAll().stream()
-        .map(this::toResponse)
-        .toList();
+    return disbursementRepository.findAll().stream().map(this::toResponse).toList();
   }
 
   @Transactional(readOnly = true)
   public List<DisbursementResponse> getDisbursementsByLoanId(UUID loanId) {
-    return disbursementRepository.findByLoanId(loanId).stream()
-        .map(this::toResponse)
-        .toList();
+    return disbursementRepository.findByLoanId(loanId).stream().map(this::toResponse).toList();
   }
 
   @Transactional(readOnly = true)
@@ -45,31 +40,35 @@ public class DisbursementService {
   }
 
   @Transactional
-  public DisbursementResponse createDisbursement(DisbursementRequest request) {
+  public DisbursementResponse applyCreate(
+      DisbursementRequest request, String businessNumber, Actor actor) {
     Disbursement disbursement = Disbursement.builder()
         .loan(findLoanById(request.getLoanId()))
-        .disbursementNumber(businessNumberService.next(BusinessNumberType.DISBURSEMENT, Instant.now()))
+        .disbursementNumber(businessNumber)
         .amount(request.getAmount())
         .bankName(request.getBankName())
         .bankAccountNumber(request.getBankAccountNumber())
         .bankAccountName(request.getBankAccountName())
+        .createdById(actor.userId())
+        .updatedById(actor.userId())
         .build();
     return toResponse(disbursementRepository.save(disbursement));
   }
 
   @Transactional
-  public DisbursementResponse updateDisbursement(UUID id, DisbursementRequest request) {
+  public DisbursementResponse applyUpdate(UUID id, DisbursementRequest request, Actor actor) {
     Disbursement disbursement = findDisbursementById(id);
     disbursement.setLoan(findLoanById(request.getLoanId()));
     disbursement.setAmount(request.getAmount());
     disbursement.setBankName(request.getBankName());
     disbursement.setBankAccountNumber(request.getBankAccountNumber());
     disbursement.setBankAccountName(request.getBankAccountName());
+    disbursement.setUpdatedById(actor.userId());
     return toResponse(disbursementRepository.save(disbursement));
   }
 
   @Transactional
-  public void deleteDisbursement(UUID id) {
+  public void applyDelete(UUID id, Actor actor) {
     disbursementRepository.delete(findDisbursementById(id));
   }
 

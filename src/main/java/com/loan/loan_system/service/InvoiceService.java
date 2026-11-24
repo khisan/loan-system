@@ -1,7 +1,6 @@
 package com.loan.loan_system.service;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,11 +11,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.loan.loan_system.dto.request.InvoiceRequest;
 import com.loan.loan_system.dto.response.InvoiceResponse;
-import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.Invoice;
 import com.loan.loan_system.entity.Loan;
 import com.loan.loan_system.repository.InvoiceRepository;
 import com.loan.loan_system.repository.LoanRepository;
+import com.loan.loan_system.security.Actor;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,20 +24,15 @@ import lombok.RequiredArgsConstructor;
 public class InvoiceService {
   private final InvoiceRepository invoiceRepository;
   private final LoanRepository loanRepository;
-  private final BusinessNumberService businessNumberService;
 
   @Transactional(readOnly = true)
   public List<InvoiceResponse> getInvoices() {
-    return invoiceRepository.findAll().stream()
-        .map(this::toResponse)
-        .toList();
+    return invoiceRepository.findAll().stream().map(this::toResponse).toList();
   }
 
   @Transactional(readOnly = true)
   public List<InvoiceResponse> getInvoicesByLoanId(UUID loanId) {
-    return invoiceRepository.findByLoanId(loanId).stream()
-        .map(this::toResponse)
-        .toList();
+    return invoiceRepository.findByLoanId(loanId).stream().map(this::toResponse).toList();
   }
 
   @Transactional(readOnly = true)
@@ -46,10 +41,10 @@ public class InvoiceService {
   }
 
   @Transactional
-  public InvoiceResponse createInvoice(InvoiceRequest request) {
+  public InvoiceResponse applyCreate(InvoiceRequest request, String businessNumber, Actor actor) {
     Invoice invoice = Invoice.builder()
         .loan(findLoanById(request.getLoanId()))
-        .invoiceNumber(businessNumberService.next(BusinessNumberType.INVOICE, Instant.now()))
+        .invoiceNumber(businessNumber)
         .installmentNumber(request.getInstallmentNumber())
         .principalAmount(request.getPrincipalAmount())
         .interestAmount(request.getInterestAmount())
@@ -59,12 +54,14 @@ public class InvoiceService {
         .dueDate(request.getDueDate())
         .paidAt(request.getPaidAt())
         .status(request.getStatus())
+        .createdById(actor.userId())
+        .updatedById(actor.userId())
         .build();
     return toResponse(invoiceRepository.save(invoice));
   }
 
   @Transactional
-  public InvoiceResponse updateInvoice(UUID id, InvoiceRequest request) {
+  public InvoiceResponse applyUpdate(UUID id, InvoiceRequest request, Actor actor) {
     Invoice invoice = findInvoiceById(id);
     invoice.setLoan(findLoanById(request.getLoanId()));
     invoice.setInstallmentNumber(request.getInstallmentNumber());
@@ -78,11 +75,12 @@ public class InvoiceService {
     if (request.getStatus() != null) {
       invoice.setStatus(request.getStatus());
     }
+    invoice.setUpdatedById(actor.userId());
     return toResponse(invoiceRepository.save(invoice));
   }
 
   @Transactional
-  public void deleteInvoice(UUID id) {
+  public void applyDelete(UUID id, Actor actor) {
     invoiceRepository.delete(findInvoiceById(id));
   }
 

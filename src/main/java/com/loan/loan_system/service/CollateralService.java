@@ -1,6 +1,5 @@
 package com.loan.loan_system.service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,11 +10,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.loan.loan_system.dto.request.CollateralRequest;
 import com.loan.loan_system.dto.response.CollateralResponse;
-import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.Collateral;
 import com.loan.loan_system.entity.Loan;
 import com.loan.loan_system.repository.CollateralRepository;
 import com.loan.loan_system.repository.LoanRepository;
+import com.loan.loan_system.security.Actor;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,20 +23,15 @@ import lombok.RequiredArgsConstructor;
 public class CollateralService {
   private final CollateralRepository collateralRepository;
   private final LoanRepository loanRepository;
-  private final BusinessNumberService businessNumberService;
 
   @Transactional(readOnly = true)
   public List<CollateralResponse> getCollaterals() {
-    return collateralRepository.findAll().stream()
-        .map(this::toResponse)
-        .toList();
+    return collateralRepository.findAll().stream().map(this::toResponse).toList();
   }
 
   @Transactional(readOnly = true)
   public List<CollateralResponse> getCollateralsByLoanId(UUID loanId) {
-    return collateralRepository.findByLoanId(loanId).stream()
-        .map(this::toResponse)
-        .toList();
+    return collateralRepository.findByLoanId(loanId).stream().map(this::toResponse).toList();
   }
 
   @Transactional(readOnly = true)
@@ -46,22 +40,23 @@ public class CollateralService {
   }
 
   @Transactional
-  public CollateralResponse createCollateral(CollateralRequest request) {
-    Loan loan = findLoanById(request.getLoanId());
+  public CollateralResponse applyCreate(CollateralRequest request, String businessNumber, Actor actor) {
     Collateral collateral = Collateral.builder()
-        .collateralNumber(businessNumberService.next(BusinessNumberType.COLLATERAL, Instant.now()))
-        .loan(loan)
+        .collateralNumber(businessNumber)
+        .loan(findLoanById(request.getLoanId()))
         .type(request.getType())
         .documentNumber(request.getDocumentNumber())
         .marketValue(request.getMarketValue())
         .pledgedValue(request.getPledgedValue())
         .description(request.getDescription())
+        .createdById(actor.userId())
+        .updatedById(actor.userId())
         .build();
     return toResponse(collateralRepository.save(collateral));
   }
 
   @Transactional
-  public CollateralResponse updateCollateral(UUID id, CollateralRequest request) {
+  public CollateralResponse applyUpdate(UUID id, CollateralRequest request, Actor actor) {
     Collateral collateral = findCollateralById(id);
     collateral.setLoan(findLoanById(request.getLoanId()));
     collateral.setType(request.getType());
@@ -69,11 +64,12 @@ public class CollateralService {
     collateral.setMarketValue(request.getMarketValue());
     collateral.setPledgedValue(request.getPledgedValue());
     collateral.setDescription(request.getDescription());
+    collateral.setUpdatedById(actor.userId());
     return toResponse(collateralRepository.save(collateral));
   }
 
   @Transactional
-  public void deleteCollateral(UUID id) {
+  public void applyDelete(UUID id, Actor actor) {
     collateralRepository.delete(findCollateralById(id));
   }
 

@@ -22,25 +22,22 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedUsers() {
-        // Cek dulu biar gak duplikat saat restart aplikasi
-        if (userRepository.count() == 0) {
-            User admin = User.builder()
-                    .name("Super Admin")
-                    .email("admin@loan.com")
-                    .password(passwordEncoder.encode("admin123")) // Otomatis BCrypt
-                    .role("admin")
-                    .build();
+        // Idempotent per email: existing databases also get the finance approver.
+        seedIfMissing("admin@loan.com", "Super Admin", "admin123", "admin");
+        seedIfMissing("staff@loan.com", "Loan Staff", "staff123", "staff");
+        seedIfMissing("finance@loan.com", "Finance Approver", "finance123", "finance");
+    }
 
-            User staff = User.builder()
-                    .name("Loan Staff")
-                    .email("staff@loan.com")
-                    .password(passwordEncoder.encode("staff123"))
-                    .role("staff")
-                    .build();
-
-            userRepository.save(admin);
-            userRepository.save(staff);
-            log.info("✅ [DataSeeder] Initial users (Admin & Staff) seeded successfully.");
+    private void seedIfMissing(String email, String name, String rawPassword, String role) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            return;
         }
+        userRepository.save(User.builder()
+                .name(name)
+                .email(email)
+                .password(passwordEncoder.encode(rawPassword))
+                .role(role)
+                .build());
+        log.info("✅ [DataSeeder] Seeded {} user ({})", role, email);
     }
 }

@@ -46,6 +46,15 @@ public class Customer {
   @Column (columnDefinition = "TEXT")
   private String address;
 
+  @Column(name = "created_by")
+  private UUID createdById;
+
+  @Column(name = "updated_by")
+  private UUID updatedById;
+
+  @Column(name = "approved_by")
+  private UUID approvedById;
+
   @Column (nullable = false,updatable = false)
   @CreationTimestamp
   private Instant createdAt;

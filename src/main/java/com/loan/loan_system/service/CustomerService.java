@@ -1,6 +1,5 @@
 package com.loan.loan_system.service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -8,21 +7,20 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.Customer;
 import com.loan.loan_system.repository.CustomerRepository;
 import com.loan.loan_system.dto.response.CustomerResponse;
 import com.loan.loan_system.dto.request.CustomerRequest;
+import com.loan.loan_system.security.Actor;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor 
+@RequiredArgsConstructor
 public class CustomerService {
   private final CustomerRepository customerRepository;
-  private final BusinessNumberService businessNumberService;
 
-public boolean isIdExists(UUID id) {
+  public boolean isIdExists(UUID id) {
     return customerRepository.existsById(id);
   }
 
@@ -34,53 +32,62 @@ public boolean isIdExists(UUID id) {
     return customerRepository.existsByIdentityNumber(identityNumber);
   }
 
+  /** Applies an approved CREATE proposal. Numbers are reserved by ApprovalService. */
   @Transactional
-  public CustomerResponse createCustomer(CustomerRequest customerRequest) {
+  public CustomerResponse applyCreate(CustomerRequest request, String businessNumber, Actor actor) {
     Customer customer = Customer.builder()
-        .customerNumber(businessNumberService.next(BusinessNumberType.CUSTOMER, Instant.now()))
-        .fullName(customerRequest.getFullName())
-        .identityNumber(customerRequest.getIdentityNumber())
-        .email(customerRequest.getEmail())
-        .phoneNumber(customerRequest.getPhoneNumber())
-        .address(customerRequest.getAddress())
+        .customerNumber(businessNumber)
+        .fullName(request.getFullName())
+        .identityNumber(request.getIdentityNumber())
+        .email(request.getEmail())
+        .phoneNumber(request.getPhoneNumber())
+        .address(request.getAddress())
+        .createdById(actor.userId())
+        .updatedById(actor.userId())
         .build();
-    Customer savedCustomer = customerRepository.save(customer);
+    Customer saved = customerRepository.save(customer);
     return CustomerResponse.builder()
-        .id(savedCustomer.getId())
-        .customerNumber(savedCustomer.getCustomerNumber())
-        .fullName(savedCustomer.getFullName())
-        .identityNumber(savedCustomer.getIdentityNumber())
-        .email(savedCustomer.getEmail())
-        .phoneNumber(savedCustomer.getPhoneNumber())
-        .address(savedCustomer.getAddress())
-        .createdAt(savedCustomer.getCreatedAt())
+        .id(saved.getId())
+        .customerNumber(saved.getCustomerNumber())
+        .fullName(saved.getFullName())
+        .identityNumber(saved.getIdentityNumber())
+        .email(saved.getEmail())
+        .phoneNumber(saved.getPhoneNumber())
+        .address(saved.getAddress())
+        .createdAt(saved.getCreatedAt())
         .build();
   }
 
-  public CustomerResponse updateCustomer(CustomerRequest customerRequest, UUID id) {
+  @Transactional
+  public CustomerResponse applyUpdate(UUID id, CustomerRequest request, Actor actor) {
     Customer customer = customerRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + id));
-    customer.setFullName(customerRequest.getFullName());
-    customer.setEmail(customerRequest.getEmail());
-    customer.setPhoneNumber(customerRequest.getPhoneNumber());
-    customer.setAddress(customerRequest.getAddress());
-    Customer updatedCustomer = customerRepository.save(customer);
+    customer.setFullName(request.getFullName());
+    customer.setEmail(request.getEmail());
+    customer.setPhoneNumber(request.getPhoneNumber());
+    customer.setAddress(request.getAddress());
+    customer.setUpdatedById(actor.userId());
+    Customer updated = customerRepository.save(customer);
     return CustomerResponse.builder()
-        .id(updatedCustomer.getId())
-        .customerNumber(updatedCustomer.getCustomerNumber())
-        .fullName(updatedCustomer.getFullName())
-        .identityNumber(updatedCustomer.getIdentityNumber())
-        .email(updatedCustomer.getEmail())
-        .phoneNumber(updatedCustomer.getPhoneNumber())
-        .address(updatedCustomer.getAddress())
-        .createdAt(updatedCustomer.getCreatedAt())
-        .updatedAt(updatedCustomer.getUpdatedAt())
+        .id(updated.getId())
+        .customerNumber(updated.getCustomerNumber())
+        .fullName(updated.getFullName())
+        .identityNumber(updated.getIdentityNumber())
+        .email(updated.getEmail())
+        .phoneNumber(updated.getPhoneNumber())
+        .address(updated.getAddress())
+        .createdAt(updated.getCreatedAt())
+        .updatedAt(updated.getUpdatedAt())
         .build();
+  }
+
+  @Transactional
+  public void applyDelete(UUID id, Actor actor) {
+    customerRepository.deleteById(id);
   }
 
   public List<CustomerResponse> getCustomers() {
-    List<Customer> customers = customerRepository.findAll();
-    return customers.stream()
+    return customerRepository.findAll().stream()
         .map(customer -> CustomerResponse.builder()
             .id(customer.getId())
             .customerNumber(customer.getCustomerNumber())
@@ -94,10 +101,10 @@ public boolean isIdExists(UUID id) {
         .collect(Collectors.toList());
   }
 
-  public CustomerResponse getCustomerById(UUID id){
+  public CustomerResponse getCustomerById(UUID id) {
     Customer customer = customerRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + id));
-     return CustomerResponse.builder()
+    return CustomerResponse.builder()
         .id(customer.getId())
         .customerNumber(customer.getCustomerNumber())
         .fullName(customer.getFullName())

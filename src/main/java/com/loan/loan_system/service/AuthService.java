@@ -22,7 +22,7 @@ public class AuthService {
 
         // Cek user ada DAN cocokkan password yang ter-hash
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            return jwtUtil.generateToken(email, user.getRole());
+            return jwtUtil.generateToken(email, user.getRole(), user.getId());
         }
 
         return null;

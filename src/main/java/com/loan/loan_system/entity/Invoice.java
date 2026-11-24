@@ -57,6 +57,15 @@ public class Invoice {
     @Column(nullable = false)
     private InvoiceStatus status;
 
+    @Column(name = "created_by")
+    private UUID createdById;
+
+    @Column(name = "updated_by")
+    private UUID updatedById;
+
+    @Column(name = "approved_by")
+    private UUID approvedById;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
