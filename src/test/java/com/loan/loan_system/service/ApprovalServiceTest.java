@@ -84,6 +84,18 @@ class ApprovalServiceTest {
   }
 
   @Test
+  void financeCannotSubmitProposal() {
+    when(actorContext.current()).thenReturn(finance);
+
+    ResponseStatusException error = assertThrows(ResponseStatusException.class,
+        () -> approvalService.submit(new ChangeRequest(
+            BusinessNumberType.LOAN, ApprovalOperation.CREATE, null, Map.of(), null, "Pengajuan")));
+
+    assertEquals(HttpStatus.FORBIDDEN, error.getStatusCode());
+    verify(approvalRequestRepository, never()).save(any());
+  }
+
+  @Test
   void financeCannotApproveOwnProposal() {
     Actor requester = new Actor(finance.userId(), finance.email(), finance.role());
     when(actorContext.current()).thenReturn(requester);

@@ -42,6 +42,11 @@ public class ApprovalService {
   @Transactional
   public ApprovalRequestResponse submit(ChangeRequest request) {
     Actor actor = actorContext.current();
+    // Finance is a read-only approver; it never submits business changes.
+    if ("finance".equals(normalize(actor.role()))) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN, "Finance hanya bisa menyetujui proposal, bukan mengirim perubahan");
+    }
     BusinessNumberType type = request.getEntityType();
     ApprovalOperation operation = request.getOperation();
 

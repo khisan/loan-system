@@ -46,6 +46,16 @@ public class SecurityConfig {
             // Decisions are finance/admin only; submitting a proposal is any authenticated user.
             .requestMatchers(HttpMethod.PATCH, "/api/approvals/*/approve", "/api/approvals/*/reject")
                 .hasAnyAuthority("admin", "finance")
+            // Finance is read-only on business data: it can only decide proposals.
+            // These rules come after the decision rule so finance keeps approve/reject.
+            .requestMatchers(HttpMethod.POST, "/api/**")
+                .hasAnyAuthority("admin", "staff", "user")
+            .requestMatchers(HttpMethod.PUT, "/api/**")
+                .hasAnyAuthority("admin", "staff", "user")
+            .requestMatchers(HttpMethod.PATCH, "/api/**")
+                .hasAnyAuthority("admin", "staff", "user")
+            .requestMatchers(HttpMethod.DELETE, "/api/**")
+                .hasAnyAuthority("admin", "staff", "user")
             .requestMatchers("/api/approvals/**", "/api/audit-logs/**").authenticated()
             // Loan status endpoints now only stage a request; the decision happens above.
             .requestMatchers(
