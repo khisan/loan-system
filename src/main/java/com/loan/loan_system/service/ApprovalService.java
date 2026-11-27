@@ -22,6 +22,8 @@ import com.loan.loan_system.enums.AuditAction;
 import com.loan.loan_system.enums.BusinessNumberType;
 import com.loan.loan_system.entity.ApprovalRequest;
 import com.loan.loan_system.event.ApprovalApprovedEvent;
+import com.loan.loan_system.event.ApprovalDecisionEvent;
+import com.loan.loan_system.event.ApprovalSubmittedEvent;
 import com.loan.loan_system.repository.ApprovalRequestRepository;
 import com.loan.loan_system.security.Actor;
 import com.loan.loan_system.security.ActorContext;
@@ -111,6 +113,7 @@ public class ApprovalService {
         "Proposal " + operation + " dikirim untuk " + type.getPrefix(),
         false);
 
+    eventPublisher.publishEvent(new ApprovalSubmittedEvent(proposal));
     return toResponse(proposal);
   }
 
@@ -155,6 +158,8 @@ public class ApprovalService {
         saved.getId(),
         note == null || note.isBlank() ? "Proposal disetujui" : note,
         override);
+
+    eventPublisher.publishEvent(new ApprovalDecisionEvent(saved, note, actor.email()));
     return toResponse(saved);
   }
 
@@ -186,6 +191,8 @@ public class ApprovalService {
         saved.getId(),
         note,
         saved.isSelfApprovalOverride());
+
+    eventPublisher.publishEvent(new ApprovalDecisionEvent(saved, note, actor.email()));
     return toResponse(saved);
   }
 
@@ -216,6 +223,8 @@ public class ApprovalService {
         saved.getId(),
         "Proposal dibatalkan",
         false);
+
+    eventPublisher.publishEvent(new ApprovalDecisionEvent(saved, null, actor.email()));
     return toResponse(saved);
   }
 

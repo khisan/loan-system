@@ -5,10 +5,12 @@ import com.loan.loan_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "app.runners.enabled", havingValue = "true", matchIfMissing = true)
 @RequiredArgsConstructor
 @Slf4j
 public class DataSeeder implements CommandLineRunner {
@@ -23,9 +25,9 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedUsers() {
         // Idempotent per email: existing databases also get the finance approver.
-        seedIfMissing("admin@loan.com", "Super Admin", "admin123", "admin");
-        seedIfMissing("staff@loan.com", "Loan Staff", "staff123", "staff");
-        seedIfMissing("finance@loan.com", "Finance Approver", "finance123", "finance");
+        seedIfMissing("admin@yopmail.com", "Super Admin", "admin123", "admin");
+        seedIfMissing("staff@yopmail.com", "Loan Staff", "staff123", "staff");
+        seedIfMissing("finance@yopmail.com", "Finance Approver", "finance123", "finance");
     }
 
     private void seedIfMissing(String email, String name, String rawPassword, String role) {

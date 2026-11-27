@@ -1,5 +1,7 @@
 package com.loan.loan_system.repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +16,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    /** Approver recipients for staged-approval notifications. */
+    List<User> findAllByRoleIn(Collection<String> roles);
 }

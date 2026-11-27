@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
  * has no silent gaps. Only runs when no CREATE audit entry exists yet.
  */
 @Component
+@ConditionalOnProperty(name = "app.runners.enabled", havingValue = "true", matchIfMissing = true)
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
 @RequiredArgsConstructor
 public class AuditTrailBackfill implements ApplicationRunner {

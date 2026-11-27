@@ -2,7 +2,7 @@ package com.loan.loan_system.service;
 
 import com.loan.loan_system.entity.User;
 import com.loan.loan_system.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.loan.loan_system.security.JwtUtil;
 
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     // 3. Return String Token (Bukan cuma boolean)
